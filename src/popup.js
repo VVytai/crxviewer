@@ -168,20 +168,23 @@ function doInstall() {
 //#endif
 
 function tryTriggerDownload(blob, filename) {
+//#if FIREFOX
+//  // Use background to trigger download to avoid blob:-URL invalidation when
+//  // the popup is closed, see https://bugzil.la/2005952
+//  chrome.runtime.sendMessage({
+//      action: "downloadBlob",
+//      blob,
+//      incognito: chrome.extension.inIncognitoContext,
+//#else
     chrome.downloads.download({
         url: URL.createObjectURL(blob),
-        filename: filename
+        // incognito option is not supported in downloads.download() in Chrome,
+        // but incognito:split is supported in the manifest which should enable
+        // separation as needed.
+//#endif
+        filename: filename,
     }, function() {
-//#if FIREFOX
-        // In Firefox, closing too soon may prevent the download from completing
-        // due to blob:-URL invalidation. So wait a little bit before actually
-        // closing the popup.
-        setTimeout(function() {
-            window.close();
-        }, 200);
-//#else
         // The popup should have closed already, but if not, do it now.
         window.close();
-//#endif
     });
 }

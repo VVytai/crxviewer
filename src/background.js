@@ -13,6 +13,18 @@
 'use strict';
 
 //#if FIREFOX
+chrome.runtime.onMessage.addListener((msg, sender) => {
+    if (msg && msg.action === "downloadBlob") {
+        chrome.downloads.download({
+            url: URL.createObjectURL(msg.blob),
+            filename: msg.filename,
+            incognito: msg.incognito,
+        });
+    }
+});
+//#endif
+
+//#if FIREFOX
 /**
  * Logic to toggle visibility of  pageAction if needed.
  *
